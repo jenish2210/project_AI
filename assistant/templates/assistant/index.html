@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Assistant</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <h1>Personal Assistant</h1>
+    <form id="task-form">
+        <input type="text" name="task" placeholder="Enter a task" required>
+        <button type="submit">Add Task</button>
+    </form>
+    <button id="list-tasks">List Tasks</button>
+    <button id="emergency-alert">Send Emergency Alert</button>
+    <ul id="task-list"></ul>
+
+    <script>
+        document.getElementById('task-form').onsubmit = async function(event) {
+            event.preventDefault();
+            const task = event.target.task.value;
+            const response = await fetch('/add-task/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `task=${task}`
+            });
+            const result = await response.json();
+            alert(result.message);
+        };
+
+        document.getElementById('list-tasks').onclick = async function() {
+            const response = await fetch('/list-tasks/');
+            const data = await response.json();
+            document.getElementById('task-list').innerHTML = data.tasks.split("\n").map(task => `<li>${task}</li>`).join('');
+        };
+
+        document.getElementById('emergency-alert').onclick = async function() {
+            const response = await fetch('/emergency/', {method: 'POST'});
+            const result = await response.json();
+            alert(result.message);
+        };
+    </script>
+</body>
+</html>
